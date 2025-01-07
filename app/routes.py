@@ -10,6 +10,7 @@ PASSWORD = 'password123'
 CANDIDATS = ['Candidat 1', 'Candidat 2', 'Candidat 3']
 
 def setup(app):
+    
     # Page de login
     @app.route('/', methods=['GET', 'POST'])
     def login():
@@ -33,6 +34,7 @@ def setup(app):
         
         return render_template('home.html', candidats=CANDIDATS)
 
+    # Route register
     @app.route('/register', methods=['GET', 'POST'])
     def register():
         if request.method == 'POST':
