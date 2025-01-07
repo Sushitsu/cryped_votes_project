@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}Déconnexion{% endblock %}
+
+{% block content %}
+    <div class="logout-message">
+        <h2>Vous êtes maintenant déconnecté</h2>
+        <p>Merci d'avoir utilisé notre application. Vous pouvez vous reconnecter à tout moment en cliquant sur le lien ci-dessous.</p>
+        <p><a href="{{ url_for('login') }}">Se reconnecter</a></p>
+    </div>
+{% endblock %}
