@@ -1,13 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from app.config import Config
 
-db = SQLAlchemy()
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Nécessaire pour utiliser flash
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)  # Charge la configuration à partir de Config
+# Configuration de la base de données
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    db.init_app(app)
+# Initialisation de l'instance db
+db = SQLAlchemy(app)
 
-    return app
+from app import routes
