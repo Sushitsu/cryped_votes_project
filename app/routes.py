@@ -5,6 +5,7 @@ from app import app
 USERNAME = 'admin'
 PASSWORD = 'password123'
 
+# Page de login
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -18,6 +19,13 @@ def login():
     
     return render_template('login.html')
 
+# Route de la page d'acceuil quand connecter
 @app.route('/home')
 def home():
     return render_template('home.html')
+
+# Route pour se déconnecter
+@app.route('/logout')
+def logout():
+    # Logique de déconnexion, par exemple effacer la session
+    return redirect(url_for('login'))

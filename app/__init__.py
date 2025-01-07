@@ -1,6 +1,14 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from config import Config
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Nécessaire pour utiliser flash
+db = SQLAlchemy()
 
-from app import routes  # Importe les routes
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    
+    db.init_app(app)
+    
+    # Importer et enregistrer tes routes et autres composants
+    return app
