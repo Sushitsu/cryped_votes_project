@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page de vote</title>
+    <title>Vote</title>
 </head>
 <body>
-    <h1>Bienvenue sur la page de vote</h1>
+    <h1>Bienvenue sur la page de vote !</h1>
     <p>Sélectionnez la personne pour laquelle vous souhaitez voter :</p>
-
     <ul>
         {% for candidat in candidats %}
             <li>
-                {{ candidat }}
+                {{ candidat }} 
                 <form action="{{ url_for('vote') }}" method="post" style="display: inline;">
                     <input type="hidden" name="candidat" value="{{ candidat }}">
                     <button type="submit">Voter</button>
@@ -20,7 +19,5 @@
             </li>
         {% endfor %}
     </ul>
-
-    <a href="{{ url_for('logout') }}">Se déconnecter</a>
 </body>
 </html>
