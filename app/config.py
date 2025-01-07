@@ -5,6 +5,6 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # Désactive le suivi des modifications pour économiser des ressources
     # Remplace les valeurs ci-dessous avec tes informations de connexion
     SQLALCHEMY_DATABASE_URI = (
-        'mysql+pymysql://root:your_password@localhost/votes_system'
+        'mysql+pymysql://root:Judave02!@localhost/votes_system'
     )
     # Utilise "root" comme utilisateur, "your_password" comme mot de passe et "votes_system" comme nom de base
