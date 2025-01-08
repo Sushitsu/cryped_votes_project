@@ -6,8 +6,6 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)  # Charge la configuration à partir de Config
-
-    db.init_app(app)
-
+    app.config.from_object(Config)  # Charge la configuration
+    db.init_app(app)  # Initialise SQLAlchemy avec l'application
     return app

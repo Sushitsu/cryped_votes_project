@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, url_for, flash, session
 from app.models import User
 from app import db
 
+
 # Utilisateur fictif pour la démonstration
 USERNAME = 'admin'
 PASSWORD = 'password123'
@@ -34,32 +35,48 @@ def setup(app):
         
         return render_template('home.html', candidats=CANDIDATS)
 
-    # Route register
+# Route pour l'inscription d'un nouvel utilisateur
     @app.route('/register', methods=['GET', 'POST'])
     def register():
         if request.method == 'POST':
             username = request.form['username']
-            email = request.form['email']
             password = request.form['password']
             confirm_password = request.form['confirm_password']
+            secu = request.form['secu']  # Numéro de sécurité sociale
+            vote = False  # L'utilisateur n'a pas encore voté
+            vote_time = None  # Pas de vote au début
+            admin = 0  # Définit l'utilisateur comme non admin (admin=0)
 
+            # Validation des mots de passe
             if password != confirm_password:
                 flash('Les mots de passe ne correspondent pas.', 'error')
-            elif len(password) < 8 or not any(char.isupper() for char in password) or not any(
-                    char.isdigit() for char in password):
+            elif len(password) < 8 or not any(char.isupper() for char in password) or not any(char.isdigit() for char in password):
                 flash('Le mot de passe doit contenir au moins 8 caractères, une lettre majuscule et un chiffre.', 'error')
             else:
+                # Vérifier si l'utilisateur existe déjà
                 if User.query.filter_by(username=username).first():
                     flash('Ce nom d\'utilisateur existe déjà.', 'error')
                 else:
-                    new_user = User(username=username)
+                    # Créer un nouvel utilisateur avec tous les champs nécessaires
+                    new_user = User(
+                        username=username,
+                        vote=vote,
+                        vote_time=vote_time,
+                        admin=admin  # L'utilisateur est un utilisateur classique, donc admin=0
+                    )
+                    # Utiliser les méthodes du modèle pour configurer le mot de passe et le numéro de sécu
                     new_user.set_password(password)
+                    new_user.set_secu(secu)
+
+                    # Ajouter l'utilisateur à la base de données
                     db.session.add(new_user)
                     db.session.commit()
+
                     flash('Compte créé avec succès! Vous pouvez maintenant vous connecter.', 'success')
                     return redirect(url_for('login'))
 
         return render_template('register.html')
+
 
     # Route pour enregistrer un vote
     @app.route('/vote', methods=['POST'])
