@@ -1,3 +1,4 @@
+from flask_sqlalchemy import SQLAlchemy
 from cryptography.fernet import Fernet
 import datetime
 from app import db
@@ -20,7 +21,7 @@ class User(db.Model):
     vote = db.Column(db.Boolean, default=False) # Ajout de la colonne 'vote'
     vote_time = db.Column(db.DateTime, nullable=True)   # Ajout de la colonne 'vote_time'
     admin = db.Column(db.Boolean, default=False) # Ajout de la colonne 'admin'
-    
+
     def __repr__(self): 
         return f'<User {self.username}>'
 
@@ -44,3 +45,16 @@ class User(db.Model):
     def set_admin(self, admin_status): 
         self.admin = admin_status 
         db.session.commit() 
+
+class Candidats(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    party = db.Column(db.String(100), nullable=False)
+    nb_votes = db.Column(db.Integer, default=0)
+
+    def __repr__(self): 
+        return f'{self.name}'
+
+
+    
+    

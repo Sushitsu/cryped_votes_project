@@ -1,14 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, session
-from app.models import User
+from app.models import User, Candidats
 from app import db
-
-
-# Utilisateur fictif pour la démonstration
-USERNAME = 'admin'
-PASSWORD = 'password123'
-
-# Liste des candidats fictifs
-CANDIDATS = ['Candidat 1', 'Candidat 2', 'Candidat 3']
 
 def setup(app):
     
@@ -19,7 +11,7 @@ def setup(app):
             username = request.form['username']
             password = request.form['password']
             
-            if username == USERNAME and password == PASSWORD:
+            if password == User.query.where(User.username == username).first().password_hash:
                 session['logged_in'] = True
                 return redirect(url_for('home'))
             else:
@@ -33,7 +25,8 @@ def setup(app):
         if not session.get('logged_in'):  # Vérifie si l'utilisateur est connecté
             return redirect(url_for('login'))
         
-        return render_template('home.html', candidats=CANDIDATS)
+        candidats = Candidats.query.all()
+        return render_template('home.html', candidats=candidats)
 
 # Route pour l'inscription d'un nouvel utilisateur
     @app.route('/register', methods=['GET', 'POST'])
@@ -82,6 +75,7 @@ def setup(app):
     @app.route('/vote', methods=['POST'])
     def vote():
         candidat = request.form.get('candidat')
+        CANDIDATS = [candidat.name for candidat in Candidats.query.all()]
         
         if not candidat or candidat not in CANDIDATS:
             flash('Vote invalide.', 'error')
