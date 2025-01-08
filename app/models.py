@@ -1,4 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
 from cryptography.fernet import Fernet
 import datetime
 from app import db

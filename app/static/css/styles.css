@@ -1,59 +1,118 @@
-/* Style global pour le body */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;  /* Fond clair */
+    font-family: 'Arial', sans-serif;
+    background: #f4f5f7;
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: center;   /* Centre le contenu horizontalement */
-    align-items: center;       /* Centre le contenu verticalement */
-    height: 100vh;             /* Prend toute la hauteur de la fenêtre */
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #333;
 }
 
-/* Style pour le formulaire de connexion */
-form {
-    width: 300px;              /* Largeur de la boîte */
-    padding: 30px;             /* Espacement interne */
-    background-color: #fff;    /* Fond blanc */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  /* Ombrage léger */
-    border-radius: 8px;        /* Coins arrondis */
-    text-align: center;        /* Centrer le texte à l'intérieur */
+.login-page {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 
-/* Style des champs de texte (input) */
+.form-wrapper {
+    text-align: center;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #4caf50;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    font-size: 14px;
+    color: #555;
+}
+
 input {
-    width: 100%;               /* Les champs prennent toute la largeur du formulaire */
+    width: 100%;
     padding: 10px;
-    margin-bottom: 20px;       /* Espacement entre les champs */
-    border: 1px solid #ccc;    /* Bordure grise claire */
-    border-radius: 5px;        /* Coins légèrement arrondis */
-    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-top: 5px;
+    outline: none;
+    transition: 0.3s;
 }
 
-/* Style du bouton */
-button {
-    width: 100%;               /* Le bouton prend toute la largeur */
+input:focus {
+    border-color: #4caf50;
+}
+
+.btn-primary {
+    width: 100%;
     padding: 10px;
-    background-color: #4CAF50; /* Couleur de fond verte */
+    background: #4caf50;
     color: white;
     border: none;
     border-radius: 5px;
-    cursor: pointer;           /* Curseur en forme de main */
     font-size: 16px;
-}
-
-button:hover {
-    background-color: #45a049; /* Couleur de fond plus foncée au survol */
-}
-
-/* Style des messages d'erreur */
-ul {
-    list-style-type: none;
-    padding: 0;
-    margin-bottom: 20px;
-}
-
-ul li {
-    color: red;
     font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background: #43a047;
+}
+
+.register-prompt {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #555;
+}
+
+.register-prompt a {
+    color: #4caf50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-prompt a:hover {
+    text-decoration: underline;
+}
+
+.flash-messages {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.flash-messages li {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: left;
+}
+
+.flash-messages .error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.flash-messages .success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.flash-messages .info {
+    background-color: #d1ecf1;
+    color: #0c5460;
 }
