@@ -16,9 +16,9 @@ class User(db.Model):
     
     # Définit 'username' comme clé primaire
     username = db.Column(db.String(64), primary_key=True, unique=True, nullable=False) # Ajout de la colonne 'username'
-    password_hash = db.Column(db.String(64), nullable=False) # Ajout de la colonne 'password'
-    secu = db.Column(db.String(13), nullable=False) # Ajout de la colonne 'secu'
-    vote = db.Column(db.Boolean, default=False) # Ajout de la colonne 'vote'
+    password_hash = db.Column(db.String(60), nullable=False) # Ajout de la colonne 'password'
+    secu = db.Column(db.String(256), nullable=False) # Ajout de la colonne 'secu'
+    vote = db.Column(db.String(256), default=None) # Ajout de la colonne 'vote'
     vote_time = db.Column(db.DateTime, nullable=True)   # Ajout de la colonne 'vote_time'
     admin = db.Column(db.Boolean, default=False) # Ajout de la colonne 'admin'
 
@@ -40,10 +40,16 @@ class User(db.Model):
     def check_secu(self, secu):
         return cipher_suite.decrypt(self.secu.encode()).decode() == secu
 
-    def register_vote(self):
-        self.vote = True
+    def register_vote(self, vote):
+        self.vote = cipher_suite.encrypt(vote.encode()).decode()
         self.vote_time = datetime.datetime.now()  # Enregistrement du moment du vote
         db.session.commit() 
+    
+    def get_vote(self):
+        if self.vote != '0':
+            return cipher_suite.decrypt(self.vote.encode()).decode(), self.vote_time
+        else:
+            return None, None
 
     def set_admin(self, admin_status): 
         self.admin = admin_status 

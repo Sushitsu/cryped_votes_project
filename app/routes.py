@@ -29,6 +29,10 @@ def setup(app):
         if not session.get('username'):  # Vérifie si l'utilisateur est connecté
             return redirect(url_for('login'))
         
+        user = User.query.where(User.username == session['username']).first()
+        
+        flash(user.get_vote())
+        
         candidats = Candidats.query.all()
         return render_template('home.html', candidats=candidats)
 
@@ -102,10 +106,12 @@ def setup(app):
             return redirect(url_for('home'))
         
         candidat = Candidats.query.filter_by(name=candidat_name).first()
+        user = User.query.where(User.username == session['username']).first()
 
-        if candidat:
+        if candidat and user.vote == '0':
 
             candidat.nb_votes += 1
+            user.register_vote(str(candidat.id))
 
             db.session.commit()
 
