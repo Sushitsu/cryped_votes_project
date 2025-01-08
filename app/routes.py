@@ -7,6 +7,9 @@ def setup(app):
     # Page de login
     @app.route('/', methods=['GET', 'POST'])
     def login():
+        if session.get('username') != None:  # Vérifie si l'utilisateur est connecté
+            return redirect(url_for('home'))
+        
         if request.method == 'POST':
             username = request.form['username']
             password = request.form['password']
@@ -34,7 +37,8 @@ def setup(app):
         
         user = User.query.where(User.username == session['username']).first()
         
-        flash(user.get_vote())
+        if (user.get_vote()[0] != None):
+            flash(f'You already voted for {Candidats.query.where(Candidats.id == user.get_vote()[0]).first().name} !', "info")
         
         candidats = Candidats.query.all()
         return render_template('home.html', candidats=candidats)

@@ -92,6 +92,13 @@ button.btn:hover {
     color: #721c24;
 }
 
+.flash-messages li.info {
+    background-color: #d1ecf1;
+    border-color: #c5ebf1;
+    color: #0c5460;
+}
+
+
 /* Lien de déconnexion */
 .logout-link {
     display: inline-block;
