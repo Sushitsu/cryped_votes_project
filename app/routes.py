@@ -74,16 +74,28 @@ def setup(app):
     # Route pour enregistrer un vote
     @app.route('/vote', methods=['POST'])
     def vote():
-        candidat = request.form.get('candidat')
-        CANDIDATS = [candidat.name for candidat in Candidats.query.all()]
+
+        candidat_name = request.form.get('candidat')  # Récupère le nom du candidat depuis le formulaire
+        CANDIDATS = [candidat.name for candidat in Candidats.query.all()]  # Liste des noms de candidats
         
-        if not candidat or candidat not in CANDIDATS:
+        if not candidat_name or candidat_name not in CANDIDATS:
             flash('Vote invalide.', 'error')
             return redirect(url_for('home'))
         
-        # Logique d'enregistrement du vote (ajouter dans une base ou stocker temporairement)
-        flash(f"Votre vote pour {candidat} a été enregistré !", 'success')
+        candidat = Candidats.query.filter_by(name=candidat_name).first()
+        
+        if candidat:
+
+            candidat.nb_votes += 1
+    
+            db.session.commit()
+            
+            flash(f"Votre vote pour {candidat_name} a été enregistré !", 'success')
+        else:
+            flash('Candidat introuvable.', 'error')
+        
         return redirect(url_for('home'))
+
 
     # Route pour se déconnecter
     @app.route('/logout')
