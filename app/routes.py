@@ -3,24 +3,27 @@ from app.models import User, Candidats
 from app import db
 
 def setup(app):
-    
+
     # Page de login
     @app.route('/', methods=['GET', 'POST'])
     def login():
         if request.method == 'POST':
             username = request.form['username']
             password = request.form['password']
-            
-            query = User.query.where(User.username == username).first()
-            
-            if query.check_password(password):
-                session['username'] = query.username
-                session['admin'] = query.admin
-                session['vote'] = query.vote
-                return redirect(url_for('home'))
+
+            user = User.query.filter_by(username=username).first()
+
+            if user and user.check_password(password):
+                print("Password is correct")
+                session['username'] = user.username
+                session['admin'] = user.admin
+                session['vote'] = user.vote
+                print(f"Session Data After Login: {session}")
+                return redirect(url_for('admin_dashboard'))
             else:
+                print("Password is incorrect or user is None")
                 flash('Nom d\'utilisateur ou mot de passe incorrect', 'error')
-        
+
         return render_template('login.html')
 
     # Route de la page d'accueil (connecté)
@@ -39,17 +42,27 @@ def setup(app):
     # Route de la page admin_dashboard (accès réservé aux administrateurs)
     @app.route('/admin_dashboard')
     def admin_dashboard():
-        if not session.get('username'):  # Vérifie si l'utilisateur est connecté
+        if not session.get('logged_in'):  # Vérifie si l'utilisateur est connecté
             return redirect(url_for('login'))
 
-        # Vérification si l'utilisateur est admin
-        user = User.query.filter_by(username=session['username']).first()
-        if user and user.admin == 1:  # Vérifie que l'utilisateur est un administrateur
-            candidats = Candidats.query.all()  # Récupère les candidats pour afficher des statistiques, etc.
-            return render_template('admin_dashboard.html', candidats=candidats)
-        else:
+        if session.get('admin') != 1:  # Vérifie si l'utilisateur est administrateur
             flash('Accès interdit. Vous devez être administrateur.', 'error')
             return redirect(url_for('home'))
+
+        candidats = Candidats.query.all()  # Récupère les candidats
+        return render_template('admin_dashboard.html', candidats=candidats)
+
+    @app.route('/delete_candidate/<int:id>', methods=['POST'])
+    def delete_candidate(id):
+        candidat = Candidats.query.get(id)
+        if candidat:
+            db.session.delete(candidat)
+            db.session.commit()
+            flash('Candidat supprimé avec succès.', 'success')
+        else:
+            flash('Candidat introuvable.', 'error')
+
+        return redirect(url_for('admin_dashboard'))
 
     # Route pour l'inscription d'un nouvel utilisateur
     @app.route('/register', methods=['GET', 'POST'])
