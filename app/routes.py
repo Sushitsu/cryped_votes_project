@@ -7,6 +7,9 @@ def setup(app):
     # Page de login
     @app.route('/', methods=['GET', 'POST'])
     def login():
+        if session.get('username') != None:  # Vérifie si l'utilisateur est connecté
+            return redirect(url_for('home'))
+        
         if request.method == 'POST':
             username = request.form['username']
             password = request.form['password']
