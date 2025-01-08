@@ -82,6 +82,7 @@ def setup(app):
                     )
                     # Utiliser les méthodes du modèle pour configurer le mot de passe et le numéro de sécu
                     new_user.set_password(password)
+                    new_user.generate_key()
                     new_user.set_secu(secu)
 
                     # Ajouter l'utilisateur à la base de données
