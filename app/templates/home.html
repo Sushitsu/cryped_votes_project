@@ -1,36 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page de vote</title>
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 </head>
 <body>
-    <h1>Bienvenue sur la page de vote</h1>
-    <p>Sélectionnez la personne pour laquelle vous souhaitez voter :</p>
+    <div class="container">
+        <h1>Bienvenue sur la page de vote</h1>
+        <p>Sélectionnez la personne pour laquelle vous souhaitez voter :</p>
 
-    <ul>
-        {% for candidat in candidats %}
-            <li>
-                {{ candidat }}
-                <form action="{{ url_for('vote') }}" method="post" style="display: inline;">
-                    <input type="hidden" name="candidat" value="{{ candidat }}">
-                    <button type="submit">Voter</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <ul class="flash-messages">
-        {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
+        <ul class="candidat-list">
+            {% for candidat in candidats %}
+                <li class="candidat-item">
+                    <span class="candidat-name">{{ candidat }}</span>
+                    <form action="{{ url_for('vote') }}" method="post" class="vote-form">
+                        <input type="hidden" name="candidat" value="{{ candidat }}">
+                        <button type="submit" class="btn">Voter</button>
+                    </form>
+                </li>
+            {% endfor %}
         </ul>
-    {% endif %}
-    {% endwith %}
 
-    <a href="{{ url_for('logout') }}">Se déconnecter</a>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+
+        <a href="{{ url_for('logout') }}" class="logout-link">Se déconnecter</a>
+    </div>
 </body>
 </html>
