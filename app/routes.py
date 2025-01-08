@@ -11,9 +11,12 @@ def setup(app):
             username = request.form['username']
             password = request.form['password']
             
-            # if password == User.query.where(User.username == username).first().password_hash:
-            if User.query.where(User.username == username).first().check_password(password):
-                session['logged_in'] = True
+            query = User.query.where(User.username == username).first()
+            
+            if query.check_password(password):
+                session['username'] = query.username
+                session['admin'] = query.admin
+                session['vote'] = query.vote
                 return redirect(url_for('home'))
             else:
                 flash('Nom d\'utilisateur ou mot de passe incorrect', 'error')
@@ -23,7 +26,7 @@ def setup(app):
     # Route de la page d'accueil (connecté)
     @app.route('/home')
     def home():
-        if not session.get('logged_in'):  # Vérifie si l'utilisateur est connecté
+        if not session.get('username'):  # Vérifie si l'utilisateur est connecté
             return redirect(url_for('login'))
         
         candidats = Candidats.query.all()
@@ -32,7 +35,7 @@ def setup(app):
     # Route de la page admin_dashboard (accès réservé aux administrateurs)
     @app.route('/admin_dashboard')
     def admin_dashboard():
-        if not session.get('logged_in'):  # Vérifie si l'utilisateur est connecté
+        if not session.get('username'):  # Vérifie si l'utilisateur est connecté
             return redirect(url_for('login'))
 
         # Vérification si l'utilisateur est admin
@@ -115,6 +118,8 @@ def setup(app):
     # Route pour se déconnecter
     @app.route('/logout')
     def logout():
-        session.pop('logged_in', None)  # Déconnecte l'utilisateur
+        session.pop('username')  # Déconnecte l'utilisateur
+        session.pop('vote')
+        session.pop('admin')
         flash('Vous avez été déconnecté.', 'info')
         return redirect(url_for('login'))
