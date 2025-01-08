@@ -11,7 +11,8 @@ def setup(app):
             username = request.form['username']
             password = request.form['password']
             
-            if password == User.query.where(User.username == username).first().password_hash:
+            # if password == User.query.where(User.username == username).first().password_hash:
+            if User.query.where(User.username == username).first().check_password(password):
                 session['logged_in'] = True
                 return redirect(url_for('home'))
             else:

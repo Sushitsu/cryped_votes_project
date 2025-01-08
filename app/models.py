@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from cryptography.fernet import Fernet
+import bcrypt
 import datetime
 from app import db
 
@@ -25,11 +26,14 @@ class User(db.Model):
     def __repr__(self): 
         return f'<User {self.username}>'
 
-    def set_password(self, password_hash):
-        self.password_hash = cipher_suite.encrypt(password_hash.encode()).decode()
+    def encrypt_password(self, password):
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
-    def check_password(self, password_hash):
-        return cipher_suite.decrypt(self.password_hash.encode()).decode() == password_hash
+    def set_password(self, password):
+        self.password_hash = self.encrypt_password(password)
+
+    def check_password(self, password):
+        return bcrypt.checkpw(password.encode(), self.password_hash.encode())
 
     def set_secu(self, secu):
         self.secu = cipher_suite.encrypt(secu.encode()).decode()
