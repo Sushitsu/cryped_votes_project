@@ -2,11 +2,6 @@ from flask import render_template, request, redirect, url_for, flash, session
 from app.models import User, Candidats
 from app import db
 
-
-# Utilisateur fictif pour la démonstration
-USERNAME = 'admin'
-PASSWORD = 'password123'
-
 def setup(app):
     
     # Page de login
