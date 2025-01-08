@@ -118,7 +118,7 @@ def setup(app):
 
             flash(f"Votre vote pour {candidat_name} a été enregistré !", 'success')
         else:
-            flash('Candidat introuvable.', 'error')
+            flash("Vous ne pouvez votez qu'une fois.", 'error')
 
         return redirect(url_for('home'))
 
