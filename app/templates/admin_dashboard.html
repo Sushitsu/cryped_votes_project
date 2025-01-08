@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de Bord Administrateur</title>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #121212;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Sidebar */
+    .dsrawer {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 250px;
+      background-color: #212121;
+      padding: 20px;
+      transition: 0.3s;
+    }
+
+    .dsrawer .navicon {
+      font-size: 2rem;
+      color: #43A047;
+      cursor: pointer;
+    }
+
+    .menu a {
+      display: block;
+      margin: 20px 0;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      color: #fff;
+      transition: background-color 0.3s ease;
+    }
+
+    .menu a:hover, .menu a.active {
+      background-color: #43A047;
+    }
+
+    .credits {
+      position: absolute;
+      bottom: 10px;
+      left: 20px;
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    /* Content */
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+    }
+
+    .header h2 {
+      color: #43A047;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card, .card-wide {
+      background-color: #333;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover, .card-wide:hover {
+      transform: scale(1.05);
+    }
+
+    .card .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card .icon {
+      font-size: 1.5rem;
+      color: #43A047;
+    }
+
+    .card .stat {
+      font-size: 1.2rem;
+      color: #43A047;
+    }
+
+    .card .body, .card-wide .body {
+      margin-top: 10px;
+    }
+
+    .card .body h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .card .footer {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Button Styles */
+    .btn-danger, .btn-warning {
+      background-color: #e74c3c;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    .btn-warning {
+      background-color: #f39c12;
+    }
+
+    .btn-warning:hover {
+      background-color: #e67e22;
+    }
+
+    /* Toggle Dark Mode */
+    .dark-mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #43A047;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      color: white;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</div>
+
+  <div class="container">
+    <div class="dsrawer">
+      <a class="navicon" href="#"><i class="icon ion-navicon"></i></a>
+      <div class="menu">
+        <a data-menu="dashboard" href="#" class="active"><i class="icon ion-home"></i> Tableau de Bord</a>
+        <a data-menu="users" href="#"><i class="icon ion-person-stalker"></i> Utilisateurs</a>
+        <a data-dialog="logout" href="#"><i class="icon ion-log-out"></i> Se déconnecter</a>
+        <a data-menu="download" href="#"><i class="icon ion-code-download"></i> Téléchargements</a>
+        <a data-menu="about" href="#"><i class="icon ion-information-circled"></i> À propos</a>
+      </div>
+      <span class="credits">uplusion23</span>
+    </div>
+
+    <div class="content">
+      <!-- Dashboard -->
+      <div class="page active" data-page="dashboard">
+        <div class="header">
+          <div class="title">
+            <h2>Tableau de Bord</h2>
+          </div>
+        </div>
+        <div class="grid">
+          <!-- Statistiques Générales -->
+          <div class="card">
+            <div class="head">
+              <span class="icon">
+                <i class="icon ion-stats-bars"></i>
+              </span>
+              <span class="stat">Statistiques Générales</span>
+            </div>
+            <div class="body">
+              <ul>
+                <li>Total des votes : {{ total_votes }}</li>
+                <li>Nombre d'électeurs : {{ total_users }}</li>
+                <li>Votes blancs : {{ blank_votes }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Graphique des Votes -->
+          <div class="card-wide">
+            <div class="head">
+              <span class="icon">
+                <i class="icon ion-pie-graph"></i>
+              </span>
+              <span class="stat">Répartition des Votes</span>
+            </div>
+            <div class="body">
+              <canvas id="voteChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Gestion des Candidats -->
+          <div class="card">
+            <div class="head">
+              <span class="icon">
+                <i class="icon ion-person-stalker"></i>
+              </span>
+              <span class="stat">Gestion des Candidats</span>
+            </div>
+            <div class="body">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Parti</th>
+                    <th>Votes</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for candidat in candidats %}
+                  <tr>
+                    <td>{{ candidat.name }}</td>
+                    <td>{{ candidat.party }}</td>
+                    <td>{{ candidat.nb_votes }}</td>
+                    <td>
+                      <form method="POST" action="{{ url_for('delete_candidate', id=candidat.id) }}">
+                        <button type="submit" class="btn-danger">Supprimer</button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Toggle Dark Mode
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const darkModeToggle = document.querySelector('.dark-mode-toggle');
+      darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '🌞' : '🌙';
+    }
+
+    // Script pour le graphique des votes
+    const ctx = document.getElementById('voteChart').getContext('2d');
+    const voteData = {{ vote_data | tojson }};
+    const voteLabels = {{ vote_labels | tojson }};
+    const chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: voteLabels,
+        datasets: [{
+          label: 'Votes par candidat',
+          data: voteData,
+          backgroundColor: ['#43A047', '#FF6384', '#FFCE56', '#FF9800', '#36A2EB']
+        }]
+      }
+    });
+  </script>
+</body>
+</html>
