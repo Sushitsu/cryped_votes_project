@@ -2,6 +2,7 @@ from Crypto.Cipher import DES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 import bcrypt
 import datetime
+from hashlib import sha1
 from app import db
 
 class User(db.Model):
@@ -20,13 +21,15 @@ class User(db.Model):
 
     # Hachage du mot de passe
     def encrypt_password(self, password):
-        return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+        # return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+        return sha1(password.encode()).hexdigest()
 
     def set_password(self, password):
         self.password_hash = self.encrypt_password(password)
 
     def check_password(self, password):
-        return bcrypt.checkpw(password.encode(), self.password_hash.encode())
+        # return bcrypt.checkpw(password.encode(), self.password_hash.encode())
+        return self.encrypt_password(password) == self.password_hash
 
     # Chiffrement et déchiffrement des données sécurisées
     def set_secu(self, secu):
