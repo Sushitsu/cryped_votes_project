@@ -2,22 +2,22 @@ from flask import render_template, request, redirect, url_for, flash, session
 from app.models import User, Candidats
 from app import db
 
-
 def setup(app):
+    
     # Page de login
     @app.route('/', methods=['GET', 'POST'])
     def login():
         if request.method == 'POST':
             username = request.form['username']
             password = request.form['password']
-
-            if password == User.query.where(User.username == username).first().password_hash:
+            
+            # if password == User.query.where(User.username == username).first().password_hash:
+            if User.query.where(User.username == username).first().check_password(password):
                 session['logged_in'] = True
-                session['username'] = username  # Ajout de la variable de session pour le nom d'utilisateur
                 return redirect(url_for('home'))
             else:
                 flash('Nom d\'utilisateur ou mot de passe incorrect', 'error')
-
+        
         return render_template('login.html')
 
     # Route de la page d'accueil (connecté)
@@ -25,7 +25,7 @@ def setup(app):
     def home():
         if not session.get('logged_in'):  # Vérifie si l'utilisateur est connecté
             return redirect(url_for('login'))
-
+        
         candidats = Candidats.query.all()
         return render_template('home.html', candidats=candidats)
 
@@ -59,10 +59,8 @@ def setup(app):
             # Validation des mots de passe
             if password != confirm_password:
                 flash('Les mots de passe ne correspondent pas.', 'error')
-            elif len(password) < 8 or not any(char.isupper() for char in password) or not any(
-                    char.isdigit() for char in password):
-                flash('Le mot de passe doit contenir au moins 8 caractères, une lettre majuscule et un chiffre.',
-                      'error')
+            elif len(password) < 8 or not any(char.isupper() for char in password) or not any(char.isdigit() for char in password):
+                flash('Le mot de passe doit contenir au moins 8 caractères, une lettre majuscule et un chiffre.', 'error')
             else:
                 # Vérifier si l'utilisateur existe déjà
                 if User.query.filter_by(username=username).first():
@@ -88,18 +86,30 @@ def setup(app):
 
         return render_template('register.html')
 
+
     # Route pour enregistrer un vote
     @app.route('/vote', methods=['POST'])
     def vote():
-        candidat = request.form.get('candidat')
-        CANDIDATS = [candidat.name for candidat in Candidats.query.all()]
 
-        if not candidat or candidat not in CANDIDATS:
+        candidat_name = request.form.get('candidat')  # Récupère le nom du candidat depuis le formulaire
+        CANDIDATS = [candidat.name for candidat in Candidats.query.all()]  # Liste des noms de candidats
+
+        if not candidat_name or candidat_name not in CANDIDATS:
             flash('Vote invalide.', 'error')
             return redirect(url_for('home'))
+        
+        candidat = Candidats.query.filter_by(name=candidat_name).first()
 
-        # Logique d'enregistrement du vote (ajouter dans une base ou stocker temporairement)
-        flash(f"Votre vote pour {candidat} a été enregistré !", 'success')
+        if candidat:
+
+            candidat.nb_votes += 1
+
+            db.session.commit()
+
+            flash(f"Votre vote pour {candidat_name} a été enregistré !", 'success')
+        else:
+            flash('Candidat introuvable.', 'error')
+
         return redirect(url_for('home'))
 
     # Route pour se déconnecter
