@@ -1,25 +1,24 @@
-from cryptography.fernet import Fernet
+from Crypto.Cipher import DES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
 import bcrypt
 import datetime
 from app import db
 
 class User(db.Model):
-    __tablename__ = 'user'  # Spécifie que le modèle correspond à la table 'users'
-    
-    # Définit 'username' comme clé primaire
-    username = db.Column(db.String(64), primary_key=True, unique=True, nullable=False) # Ajout de la colonne 'username'
-    password_hash = db.Column(db.String(60), nullable=False) # Ajout de la colonne 'password'
-    aes_key = db.Column(db.LargeBinary, nullable=True)
-    secu = db.Column(db.String(256), nullable=False) # Ajout de la colonne 'secu'
-    vote = db.Column(db.String(256), default=None) # Ajout de la colonne 'vote'
-    vote_time = db.Column(db.DateTime, nullable=True)   # Ajout de la colonne 'vote_time'
-    admin = db.Column(db.Boolean, default=False) # Ajout de la colonne 'admin'
+    __tablename__ = 'user'
 
-    def __repr__(self): 
+    username = db.Column(db.String(64), primary_key=True, unique=True, nullable=False)
+    password_hash = db.Column(db.String(60), nullable=False)
+    aes_key = db.Column(db.LargeBinary, nullable=True)
+    secu = db.Column(db.String(256), nullable=False)
+    vote = db.Column(db.String(256), default=None)
+    vote_time = db.Column(db.DateTime, nullable=True)
+    admin = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
         return f'<User {self.username}>'
 
+    # Hachage du mot de passe
     def encrypt_password(self, password):
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
@@ -29,46 +28,72 @@ class User(db.Model):
     def check_password(self, password):
         return bcrypt.checkpw(password.encode(), self.password_hash.encode())
 
+    # Chiffrement et déchiffrement des données sécurisées
     def set_secu(self, secu):
-        self.secu = Fernet(self.get_aes()).encrypt(secu.encode()).decode()
+        cipher = DES.new(self.get_aes_key(), DES.MODE_ECB)
+        padded_secu = self.pad_data(secu.encode())
+        self.secu = cipher.encrypt(padded_secu).hex()
 
     def check_secu(self, secu):
-        return Fernet(self.get_aes()).decrypt(self.secu.encode()).decode() == secu
+        cipher = DES.new(self.get_aes_key(), DES.MODE_ECB)
+        decrypted_secu = self.unpad_data(cipher.decrypt(bytes.fromhex(self.secu)))
+        return decrypted_secu.decode() == secu
 
+    # Enregistrement du vote
     def register_vote(self, vote):
-        self.vote = Fernet(self.get_aes()).encrypt(vote.encode()).decode()
-        self.vote_time = datetime.datetime.now()  # Enregistrement du moment du vote
-        db.session.commit() 
-    
+        cipher = DES.new(self.get_aes_key(), DES.MODE_ECB)
+        padded_vote = self.pad_data(vote.encode())
+        self.vote = cipher.encrypt(padded_vote).hex()
+        self.vote_time = datetime.datetime.now()
+        db.session.commit()
+
     def get_vote(self):
-        if self.vote != '0':
-            return Fernet(self.get_aes()).decrypt(self.vote.encode()).decode(), self.vote_time
-        else:
-            return None, None
+        if self.vote:
+            try:
+                cipher = DES.new(self.get_aes_key(), DES.MODE_ECB)
+                decrypted_vote = self.unpad_data(cipher.decrypt(bytes.fromhex(self.vote)))
+                return decrypted_vote.decode(), self.vote_time
+            except ValueError as e:
+                print(f"Erreur de déchiffrement : {e}")
+                return None, None
+        return None, None
 
-    def set_admin(self, admin_status): 
-        self.admin = admin_status 
-        db.session.commit() 
+    def set_admin(self, admin_status):
+        self.admin = admin_status
+        db.session.commit()
 
-    # Chiffrer la clé AES avec RSA
+    # Gestion de la clé DES chiffrée avec RSA
     def encrypt_rsa(self, aes_key, public_key):
         rsa_key = RSA.import_key(public_key)
         cipher = PKCS1_OAEP.new(rsa_key)
         return cipher.encrypt(aes_key)
 
-    # Déchiffrer la clé AES avec RSA
     def decrypt_rsa(self, encrypted_key, private_key):
         rsa_key = RSA.import_key(private_key)
         cipher = PKCS1_OAEP.new(rsa_key)
         return cipher.decrypt(encrypted_key)
 
     def generate_key(self):
-        with open("app/rsa.pem") as rsa_key:
-            self.aes_key = self.encrypt_rsa(Fernet.generate_key(), rsa_key.read())
-    
-    def get_aes(self):
-        with open("app/rsa.key") as rsa_key:
-            return self.decrypt_rsa(self.aes_key, rsa_key.read())
+        aes_key = b"8bytekey"  # La clé DES doit faire exactement 8 octets
+        with open("app/rsa.pem") as rsa_key_file:
+            public_key = rsa_key_file.read()
+            self.aes_key = self.encrypt_rsa(aes_key, public_key)
+
+    def get_aes_key(self):
+        with open("app/rsa.key") as rsa_key_file:
+            private_key = rsa_key_file.read()
+            return self.decrypt_rsa(self.aes_key, private_key)
+
+    # Méthodes utilitaires pour le padding
+    @staticmethod
+    def pad_data(data, block_size=8):
+        padding_length = block_size - len(data) % block_size
+        return data + bytes([padding_length] * padding_length)
+
+    @staticmethod
+    def unpad_data(data):
+        padding_length = data[-1]
+        return data[:-padding_length]
 
 class Candidats(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -76,9 +101,5 @@ class Candidats(db.Model):
     party = db.Column(db.String(100), nullable=False)
     nb_votes = db.Column(db.Integer, default=0)
 
-    def __repr__(self): 
+    def __repr__(self):
         return f'{self.name}'
-
-
-    
-    
