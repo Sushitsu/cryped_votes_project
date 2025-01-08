@@ -142,8 +142,6 @@ def setup(app):
     # Route pour se déconnecter
     @app.route('/logout')
     def logout():
-        session.pop('username')  # Déconnecte l'utilisateur
-        session.pop('vote')
-        session.pop('admin')
+        session.clear()
         flash('Vous avez été déconnecté.', 'info')
         return redirect(url_for('login'))
