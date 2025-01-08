@@ -38,7 +38,7 @@ def setup(app):
         user = User.query.where(User.username == session['username']).first()
         
         if (user.get_vote()[0] != None):
-            flash(f'You already voted for {Candidats.query.where(Candidats.id == user.get_vote()[0]).first().name} !', "info")
+            flash(f'Vous avez déja voté pour : {Candidats.query.where(Candidats.id == user.get_vote()[0]).first().name} !', "info")
         
         candidats = Candidats.query.all()
         return render_template('home.html', candidats=candidats)
