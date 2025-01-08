@@ -4,6 +4,27 @@ from app import db
 
 def setup(app):
 
+    @app.before_request
+    def refresh_session():
+        if request.path != "/" and not request.path.endswith(".css") and not request.path.endswith(".js"):
+            if not session.get('username'):
+                return redirect(url_for('login'))
+            
+            query = User.query.where(User.username == session['username'])
+
+            if len(query.all()) == 0:
+                session.clear()
+                return redirect(url_for('login'))
+            elif (query.first().password_hash != session['password_hash']):
+                session.clear()
+                flash("Your password has changed since last logon", "error")
+                return redirect(url_for('login'))
+            else:
+                session['username'] = query.first().username
+                session['admin'] = query.first().admin
+                session['vote'] = query.first().vote
+                session['password_hash'] = query.first().password_hash
+
     # Page de login
     @app.route('/', methods=['GET', 'POST'])
     def login():
@@ -21,6 +42,7 @@ def setup(app):
                 session['username'] = user.username
                 session['admin'] = user.admin
                 session['vote'] = user.vote
+                session['password_hash'] = user.password_hash
                 print(f"Session Data After Login: {session}")
                 return redirect(url_for('admin_dashboard'))
             else:
@@ -38,7 +60,7 @@ def setup(app):
         user = User.query.where(User.username == session['username']).first()
         
         if (user.get_vote()[0] != None):
-            flash(f'You already voted for {Candidats.query.where(Candidats.id == user.get_vote()[0]).first().name} !', "info")
+            flash(f'Vous avez déja voté pour : {Candidats.query.where(Candidats.id == user.get_vote()[0]).first().name} !', "info")
         
         candidats = Candidats.query.all()
         return render_template('home.html', candidats=candidats)
@@ -161,8 +183,6 @@ def setup(app):
     # Route pour se déconnecter
     @app.route('/logout')
     def logout():
-        session.pop('username')  # Déconnecte l'utilisateur
-        session.pop('vote')
-        session.pop('admin')
+        session.clear()
         flash('Vous avez été déconnecté.', 'info')
         return redirect(url_for('login'))
