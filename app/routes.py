@@ -46,7 +46,7 @@ def setup(app):
     # Route de la page admin_dashboard (accès réservé aux administrateurs)
     @app.route('/admin_dashboard')
     def admin_dashboard():
-        if not session.get('logged_in'):  # Vérifie si l'utilisateur est connecté
+        if not session.get('username'):  # Vérifie si l'utilisateur est connecté
             return redirect(url_for('login'))
 
         if session.get('admin') != 1:  # Vérifie si l'utilisateur est administrateur
@@ -66,6 +66,25 @@ def setup(app):
         else:
             flash('Candidat introuvable.', 'error')
 
+        return redirect(url_for('admin_dashboard'))
+
+    @app.route('/add_candidate', methods=['POST'])
+    def add_candidate():
+        name = request.form.get('name')
+        party = request.form.get('party')
+        votes = request.form.get('votes')
+
+        # Validation des données
+        if not name or not party or not votes.isdigit():
+            flash('Veuillez remplir correctement tous les champs.', 'error')
+            return redirect(url_for('admin_dashboard'))
+
+        # Création d'un nouveau candidat
+        new_candidate = Candidats(name=name, party=party, nb_votes=int(votes))
+        db.session.add(new_candidate)
+        db.session.commit()
+
+        flash('Candidat ajouté avec succès.', 'success')
         return redirect(url_for('admin_dashboard'))
 
     # Route pour l'inscription d'un nouvel utilisateur
