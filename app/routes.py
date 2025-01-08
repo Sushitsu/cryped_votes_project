@@ -16,7 +16,7 @@ def setup(app):
             username = request.form['username']
             password = request.form['password']
             
-            if username == USERNAME and password == PASSWORD:
+            if password == User.query.where(User.username == username).first().password_hash:
                 session['logged_in'] = True
                 return redirect(url_for('home'))
             else:
@@ -81,10 +81,6 @@ def setup(app):
     def vote():
         candidat = request.form.get('candidat')
         CANDIDATS = [candidat.name for candidat in Candidats.query.all()]
-
-        print(candidat)
-        print(CANDIDATS)
-        print(type(CANDIDATS[0]))
         
         if not candidat or candidat not in CANDIDATS:
             flash('Vote invalide.', 'error')
