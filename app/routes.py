@@ -6,7 +6,7 @@ def setup(app):
 
     @app.before_request
     def refresh_session():
-        if request.path != "/" and not request.path.endswith(".css") and not request.path.endswith(".js"):
+        if request.path != "/" and request.path != "/register" and not request.path.endswith(".css") and not request.path.endswith(".js"):
             if not session.get('username'):
                 return redirect(url_for('login'))
             
