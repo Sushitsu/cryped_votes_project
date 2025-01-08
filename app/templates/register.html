@@ -1,4 +1,12 @@
-{% block title %}Créer un compte{% endblock %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un compte</title>
+    <link rel="stylesheet" href="/static/css/register.css">
+</head>
+<body> 
 
 {% block content %}
 <div class="register-container">
@@ -16,32 +24,41 @@
         {% endif %}
         {% endwith %}
 
+        <!-- Champ Nom d'utilisateur -->
         <div class="form-group">
             <label for="username">Nom d'utilisateur :</label>
             <input type="text" id="username" name="username" placeholder="Choisissez un nom d'utilisateur" required>
         </div>
 
+        <!-- Champ Numéro de sécurité sociale -->
         <div class="form-group">
-            <label for="email">Numéro de sécurité sociale :</label> 
-            <input type="text" name="secu" placeholder="Numéro de sécurité sociale" required> 
+            <label for="secu">Numéro de sécurité sociale :</label>
+            <input type="text" name="secu" placeholder="Numéro de sécurité sociale" required>
         </div>
 
+        <!-- Champ Mot de passe -->
         <div class="form-group">
             <label for="password">Mot de passe :</label>
             <input type="password" id="password" name="password" placeholder="Choisissez un mot de passe" required>
             <small class="password-info">Le mot de passe doit contenir au moins 8 caractères, une lettre majuscule et un chiffre.</small>
         </div>
 
+        <!-- Champ Confirmer le mot de passe -->
         <div class="form-group">
             <label for="confirm_password">Confirmer le mot de passe :</label>
             <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirmez votre mot de passe" required>
         </div>
 
+        <!-- Bouton Créer un compte -->
         <button type="submit" class="btn">Créer un compte</button>
     </form>
 
+    <!-- Lien vers la page de connexion -->
     <p class="login-link">
         Déjà un compte ? <a href="{{ url_for('login') }}">Se connecter</a>
     </p>
 </div>
 {% endblock %}
+
+</body>
+</html>
