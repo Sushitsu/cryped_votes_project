@@ -104,9 +104,8 @@ body.dark-mode .dsrawer {
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 20px;
-    margin-left: 22rem;
+    margin-left: 13rem;
     width: 80%;
     padding: 20px;
     max-width: 1270px;

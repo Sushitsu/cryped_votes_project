@@ -78,9 +78,10 @@ def setup(app):
             flash('Accès interdit. Vous devez être administrateur.', 'error')
             return redirect(url_for('home'))
 
-        candidats = Candidats.query.all()  # Récupère les candidats
-        user = User.query.all()  # Récupère les utilisateurs
-        return render_template('admin_dashboard.html', candidats=candidats, user=user)
+        candidats = Candidats.query.all()
+        users = User.query.all()
+        print("Users:", users)
+        return render_template('admin_dashboard.html', candidats=candidats, users=users)
 
     @app.route('/delete_candidate/<int:id>', methods=['POST'])
     def delete_candidate(id):
