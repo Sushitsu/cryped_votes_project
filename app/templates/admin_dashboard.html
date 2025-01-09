@@ -14,105 +14,120 @@
             <div class="dsrawer">
                 <div class="menu">
                     <a data-menu="dashboard" href="#" class="active"><i class="icon ion-home"></i> Tableau de Bord</a>
-                    <a data-menu="users" href="#"><i class="icon ion-person-stalker"></i> Utilisateurs</a>
+{#                    <a data-menu="users" href="#"><i class="icon ion-person-stalker"></i> Utilisateurs</a>#}
                     <a data-menu="logout" href="{{ url_for('logout') }}"><i class="icon ion-log-out"></i> Se déconnecter </a>
-                    <a data-menu="download" href="#"><i class="icon ion-code-download"></i> Téléchargements</a>
                     <a data-menu="about" href="#"><i class="icon ion-information-circled"></i> À propos</a>
                 </div>
             </div>
 
             <div class="content">
-                <!-- Dashboard -->
-                <div class="page active" data-page="dashboard">
-                    <div class="header">
-                        <div class="title">
-                            <h2>Tableau de Bord</h2>
+            <!-- Dashboard -->
+                <div class="header">
+                    <div class="title">
+                        <h2>Tableau de Bord</h2>
+                        <h3><span class="icon"><i class="icon ion-stats-bars"></i></span>Statistiques Générales</h3>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <!-- Gestion Candidats -->
+                    <div class="card">
+                        <div class="head">
+                            <div class="icon-title">
+                                <span class="icon">
+                                    <i class="icon ion-trash-a"></i>
+                                </span>
+                                <span class="stat">Gestion des Candidats</span>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <form method="POST" action="{{ url_for('add_candidate') }}">
+                                <label for="name">Nom du Candidat</label>
+                                <input type="text" id="name" name="name" required>
+
+                                <label for="party">Parti</label>
+                                <input type="text" id="party" name="party" required>
+
+                                <label for="votes">Nombre de Votes</label>
+                                <input type="number" id="votes" name="votes" required>
+
+                                <button type="submit">Ajouter Candidat</button>
+                            </form>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Parti</th>
+                                        <th>Votes</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for candidat in candidats %}
+                                        <tr>
+                                            <td>{{ candidat.name }}</td>
+                                            <td>{{ candidat.party }}</td>
+                                            <td>{{ candidat.nb_votes }}</td>
+                                            <td>
+                                                <form method="POST" action="{{ url_for('delete_candidate', id=candidat.id) }}">
+                                                    <button type="submit">Supprimer</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <div class="grid">
-                        <!-- Statistiques Générales -->
-                        <div class="card">
-                            <div class="head">
-                                <div class="icon-title">
-                                    <span class="icon">
-                                        <i class="icon ion-stats-bars"></i>
-                                    </span>
-                                    <span class="stat">Statistiques Générales</span>
-                                </div>
-                            </div>
-                            <div class="body">
-                                <ul>
-                                    <li>Total des votes : {{ total_votes }}</li>
-                                    <li>Nombre d'électeurs : {{ total_users }}</li>
-                                    <li>Votes blancs : {{ blank_votes }}</li>
-                                </ul>
+
+                    <!-- Gestion des Utilisateurs -->
+                    <div class="card">
+                        <div class="head">
+                            <div class="icon-title">
+                                <span class="icon">
+                                    <i class="icon ion-person"></i>
+                                </span>
+                                <span class="stat">Gestion des Utilisateurs</span>
                             </div>
                         </div>
+                        <div class="body">
+                            <form method="POST" action="{{ url_for('add_user') }}">
+                                <label for="username">Nom d'utilisateur</label>
+                                <input type="text" id="username" name="username" required>
 
-                        <!-- Graphique des Votes -->
-                        <div class="card-wide">
-                            <div class="head">
-                                <div class="icon-title">
-                                    <span class="icon">
-                                        <i class="icon ion-pie-graph"></i>
-                                    </span>
-                                    <span class="stat">Répartition des Votes</span>
-                                </div>
-                            </div>
-                            <div class="body">
-                                <canvas id="voteChart"></canvas>
-                            </div>
-                        </div>
+                                <label for="secu">N° de Sécurité Sociale</label>
+                                <input type="text" id="secu" name="secu" required>
 
-                        <!-- Gestion des Candidats -->
-                       <div class="card">
-                            <div class="head">
-                                <div class="icon-title">
-                                    <span class="icon">
-                                        <i class="icon ion-person-stalker"></i>
-                                    </span>
-                                    <span class="stat">Gestion des Candidats</span>
-                                </div>
-                            </div>
-                            <div class="body">
-                                <form method="POST" action="{{ url_for('add_candidate') }}">
-                                    <label for="name">Nom du Candidat</label>
-                                    <input type="text" id="name" name="name" required>
+                                <label for="password">Mot de passe</label>
+                                <input type="password" id="password" name="password" required>
 
-                                    <label for="party">Parti</label>
-                                    <input type="text" id="party" name="party" required>
+                                <button type="submit">Ajouter Utilisateur</button>
+                            </form>
 
-                                    <label for="votes">Nombre de Votes</label>
-                                    <input type="number" id="votes" name="votes" required>
-
-                                    <button type="submit">Ajouter Candidat</button>
-                                </form>
-
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Nom</th>
-                                            <th>Parti</th>
-                                            <th>Votes</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for candidat in candidats %}
-                                            <tr>
-                                                <td>{{ candidat.name }}</td>
-                                                <td>{{ candidat.party }}</td>
-                                                <td>{{ candidat.nb_votes }}</td>
-                                                <td>
-                                                    <form method="POST" action="{{ url_for('delete_candidate', id=candidat.id) }}">
-                                                        <button type="submit">Supprimer</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <!-- Tableau des utilisateurs existants -->
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>N° de Sécurité Sociale</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>{{ user.username }}</td>
+                                        <td>{{ user.secu }}</td>
+                                        <td>
+                                            <form method="POST" action="{{ url_for('delete_user', username=user.username) }}">
+                                                <button type="submit">Supprimer</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -127,7 +142,6 @@
             darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '🌞' : '🌙';
         }
 
-
             // Function to manage logout
             function logout() {
                 fetch('/logout', { method: 'POST' })
@@ -139,25 +153,5 @@
                     });
             }
         </script>
-    <script>
-        document.querySelectorAll('.menu a').forEach(item => {
-            item.addEventListener('click', function(event) {
-                // Vérifie si c'est un lien vers la déconnexion
-                if (this.getAttribute('data-menu') === 'logout') {
-                    window.location.href = this.href; // Effectue la redirection normale
-                    return; // Arrête ici pour éviter d'appliquer le comportement des sections
-                }
-
-                event.preventDefault(); // Bloque l'action par défaut pour les autres liens
-                const page = this.getAttribute('data-menu');
-
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.querySelector(`[data-page="${page}"]`).classList.add('active');
-
-                document.querySelectorAll('.menu a').forEach(link => link.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-    </script>
     </body>
 </html>

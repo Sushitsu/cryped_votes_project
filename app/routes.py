@@ -1,4 +1,7 @@
+import bcrypt
 from flask import render_template, request, redirect, url_for, flash, session
+from werkzeug.security import generate_password_hash
+
 from app.models import User, Candidats
 from app import db
 
@@ -76,7 +79,8 @@ def setup(app):
             return redirect(url_for('home'))
 
         candidats = Candidats.query.all()  # Récupère les candidats
-        return render_template('admin_dashboard.html', candidats=candidats)
+        user = User.query.all()  # Récupère les utilisateurs
+        return render_template('admin_dashboard.html', candidats=candidats, user=user)
 
     @app.route('/delete_candidate/<int:id>', methods=['POST'])
     def delete_candidate(id):
@@ -107,6 +111,54 @@ def setup(app):
         db.session.commit()
 
         flash('Candidat ajouté avec succès.', 'success')
+        return redirect(url_for('admin_dashboard'))
+
+    @app.route('/add_user', methods=['POST'])
+    def add_user():
+        username = request.form['username']
+        secu = request.form['secu']
+        password = request.form['password']
+
+        # Validation des mots de passe
+        if len(password) < 8 or not any(char.isupper() for char in password) or not any(
+                char.isdigit() for char in password):
+            flash('Le mot de passe doit contenir au moins 8 caractères, une lettre majuscule et un chiffre.', 'error')
+            return redirect(url_for('admin_dashboard'))
+
+        # Vérifier si l'utilisateur existe déjà
+        if User.query.filter_by(username=username).first():
+            flash('Ce nom d\'utilisateur existe déjà.', 'error')
+            return redirect(url_for('admin_dashboard'))
+
+        # Création de l'utilisateur
+        new_user = User(
+            username=username,
+            vote=False,  # L'utilisateur n'a pas encore voté
+            vote_time=None,  # Pas de vote au début
+            admin=0  # L'utilisateur est classique, donc admin=0
+        )
+        # Configuration du mot de passe et du numéro de sécurité sociale
+        new_user.set_password(password)
+        new_user.generate_key()
+        new_user.set_secu(secu)
+
+        # Ajout à la base de données
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Utilisateur ajouté avec succès.', 'success')
+        return redirect(url_for('admin_dashboard'))
+
+    @app.route('/delete_user/<username>', methods=['POST'])
+    def delete_user(username):
+        user = User.query.filter_by(username=username).first()  # Recherche par username
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            flash('Utilisateur supprimé avec succès.', 'success')
+        else:
+            flash('Utilisateur introuvable.', 'error')
+
         return redirect(url_for('admin_dashboard'))
 
     # Route pour l'inscription d'un nouvel utilisateur
