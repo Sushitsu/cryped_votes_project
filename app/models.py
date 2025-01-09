@@ -32,8 +32,8 @@ class User(db.Model):
     def set_secu(self, secu):
         self.secu = Fernet(self.get_aes()).encrypt(secu.encode()).decode()
 
-    def check_secu(self, secu):
-        return Fernet(self.get_aes()).decrypt(self.secu.encode()).decode() == secu
+    def get_secu(self):
+        return Fernet(self.get_aes()).decrypt(self.secu.encode()).decode()
 
     def register_vote(self, vote):
         self.vote = Fernet(self.get_aes()).encrypt(vote.encode()).decode()
